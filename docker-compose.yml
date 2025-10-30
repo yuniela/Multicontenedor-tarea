@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    container_name: fintech_backend
+    ports:
+      - "5001:5000"
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_USER=finuser
+      - DATABASE_PASSWORD=finpass
+      - DATABASE_NAME=fintechdb
+    depends_on:
+      - db
+    networks:
+      - fintech_net
+
+  db:
+    image: mysql:8.0
+    container_name: fintech_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: fintechdb
+      MYSQL_USER: finuser
+      MYSQL_PASSWORD: finpass
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - fintech_net
+  frontend:
+    build: ./frontend
+    container_name: fintech_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - fintech_net
+
+volumes:
+  db_data:
+
+networks:
+  fintech_net:
+    driver: bridge
